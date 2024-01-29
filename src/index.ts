@@ -1,3 +1,3 @@
-import { Add } from './Add.js';
+import { AccountManager } from './AccountManager';
 
-export { Add };
+export { AccountManager };
