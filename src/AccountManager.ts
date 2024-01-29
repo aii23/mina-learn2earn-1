@@ -13,18 +13,18 @@ import {
 } from 'o1js';
 import { Gadgets } from 'o1js/dist/node/lib/gadgets/gadgets';
 
-enum AccountState {
+export enum AccountState {
   NotListed,
   Listed,
   Participated,
 }
 
-class Account extends Struct({
+export class SpyState extends Struct({
   state: Field,
   message: Field,
 }) {
-  static listed(): Account {
-    return new Account({
+  static listed(): SpyState {
+    return new SpyState({
       state: Field.from(AccountState.Listed),
       message: Field.from(0),
     });
@@ -43,12 +43,12 @@ export class AccountManager extends SmartContract {
     super.init();
 
     this.root.set(new MerkleMap().getRoot());
+    this.administrator.set(PublicKey.empty());
   }
 
   @method setAdministrator(administrator: PublicKey) {
     const curAdministrator = this.administrator.getAndRequireEquals();
     curAdministrator.assertEquals(PublicKey.empty());
-
     this.administrator.set(administrator);
   }
 
@@ -65,7 +65,7 @@ export class AccountManager extends SmartContract {
     root.assertEquals(rootBefore);
     key.assertEquals(accountHash);
 
-    const [newRoot] = path.computeRootAndKey(Account.listed().hash());
+    const [newRoot] = path.computeRootAndKey(SpyState.listed().hash());
 
     this.root.set(newRoot);
   }
@@ -100,12 +100,12 @@ export class AccountManager extends SmartContract {
 
     const root = this.root.getAndRequireEquals();
     const accountHash = Poseidon.hash(this.sender.toFields());
-    const [rootBefore, key] = path.computeRootAndKey(Account.listed().hash());
+    const [rootBefore, key] = path.computeRootAndKey(SpyState.listed().hash());
 
     root.assertEquals(rootBefore);
     key.assertEquals(accountHash);
 
-    const newValue = new Account({
+    const newValue = new SpyState({
       state: Field.from(AccountState.Participated),
       message,
     });
