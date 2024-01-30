@@ -195,6 +195,13 @@ describe('AccountManager.js', () => {
           message: rightMessage2,
         }).hash()
       );
+
+      expect(accountManager.messageCount.get().toString()).toEqual('2');
+
+      const events = await accountManager.fetchEvents();
+      expect(events.length).toEqual(2);
+      expect(events[0].event.data).toEqual(spy1);
+      expect(events[1].event.data).toEqual(spy2);
     });
   });
 });

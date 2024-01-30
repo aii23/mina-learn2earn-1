@@ -35,9 +35,13 @@ export class SpyState extends Struct({
 }
 
 export class AccountManager extends SmartContract {
+  events = {
+    'received-message': PublicKey,
+  };
+
   @state(Field) root = State<Field>();
   @state(PublicKey) administrator = State<PublicKey>();
-  @state(UInt64) unusedAccounts = State<UInt64>();
+  @state(UInt64) messageCount = State<UInt64>();
 
   @method init() {
     super.init();
@@ -112,5 +116,8 @@ export class AccountManager extends SmartContract {
 
     const [newRoot] = path.computeRootAndKey(newValue.hash());
     this.root.set(newRoot);
+
+    this.messageCount.set(this.messageCount.getAndRequireEquals().add(1));
+    this.emitEvent('received-message', this.sender);
   }
 }
