@@ -34,9 +34,14 @@ export class SpyState extends Struct({
   }
 }
 
+export class ReceivedEvent extends Struct({
+  sender: PublicKey,
+  message: Field,
+}) {}
+
 export class AccountManager extends SmartContract {
   events = {
-    'received-message': PublicKey,
+    'received-message': ReceivedEvent,
   };
 
   @state(Field) root = State<Field>();
@@ -118,6 +123,12 @@ export class AccountManager extends SmartContract {
     this.root.set(newRoot);
 
     this.messageCount.set(this.messageCount.getAndRequireEquals().add(1));
-    this.emitEvent('received-message', this.sender);
+    this.emitEvent(
+      'received-message',
+      new ReceivedEvent({
+        sender: this.sender,
+        message,
+      })
+    );
   }
 }

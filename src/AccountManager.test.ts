@@ -1,4 +1,9 @@
-import { AccountManager, AccountState, SpyState } from './AccountManager';
+import {
+  AccountManager,
+  AccountState,
+  ReceivedEvent,
+  SpyState,
+} from './AccountManager';
 
 import {
   AccountUpdate,
@@ -181,7 +186,7 @@ describe('AccountManager.js', () => {
       const tx5 = await Mina.transaction(spy2, () => {
         accountManager.addMessage(
           merkleMap.getWitness(Poseidon.hash(spy2.toFields())),
-          rightMessage1
+          rightMessage2
         );
       });
 
@@ -200,8 +205,18 @@ describe('AccountManager.js', () => {
 
       const events = await accountManager.fetchEvents();
       expect(events.length).toEqual(2);
-      expect(events[0].event.data).toEqual(spy1);
-      expect(events[1].event.data).toEqual(spy2);
+      expect(events[0].event.data).toEqual(
+        new ReceivedEvent({
+          sender: spy1,
+          message: rightMessage1,
+        })
+      );
+      expect(events[1].event.data).toEqual(
+        new ReceivedEvent({
+          sender: spy2,
+          message: rightMessage2,
+        })
+      );
     });
   });
 });
